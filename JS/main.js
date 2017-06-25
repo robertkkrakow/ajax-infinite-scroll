@@ -15,10 +15,10 @@ function ajax(ajaxOptions) {
     //funkcja sprawdzajaca statusy polaczenia
     function httpSuccess(httpRequest) {
         try {
-            return(httpRequest.status >= 200 && httpRequest.status < 300 || httpRequest.status == 304 ||
-                  //dotyczy safari
-                  navigator.userAgent.indexOf('Safari') >= 0 && typeof httpRequest.status == 'undefined');
-        } catch(e){
+            return (httpRequest.status >= 200 && httpRequest.status < 300 || httpRequest.status == 304 ||
+                //dotyczy safari
+                navigator.userAgent.indexOf('Safari') >= 0 && typeof httpRequest.status == 'undefined');
+        } catch (e) {
             return false;
         }
     }
@@ -34,24 +34,19 @@ function ajax(ajaxOptions) {
     httpReq.onreadystatechange = function () {
         if (this.readyState == 4) {
             //sprawdz status polaczenia
-            if(httpSuccess(this)){
-                //console.log('polaczenia dziala');
-                //console.log(this.readyState);
-                //console.log(this.status);
-                
+            if (httpSuccess(this)) {
+
+
                 //jesli dane w formacie XML to zwroc obiekt responseXML, w przeciwnym wypadku 
                 // responsetext (JSON to text)
                 var returnData = (options.dataType == 'xml') ? this.responseXML :
-                this.responseText;
-                
+                    this.responseText;
+
                 options.onSuccess(returnData);
-                
-            
-                
-                
+
                 //zerowanie polaczenia
                 httpReq = null;
-            } else{
+            } else {
                 options.onError(console.log('błąd'));
             }
         }
@@ -61,22 +56,61 @@ function ajax(ajaxOptions) {
 
 }
 
-ajax({
-    type: 'GET',
-    url: 'http://echo.jsontest.com/userId/108/userName/Akademia108/userURL/akademia108.pl',
-    onError: function(msg) {
-        console.log(msg);
-    },
-    onSuccess: function (response){
-        var jsonObj = JSON.parse(response);
-        console.log(jsonObj);
-        
-        var userID = jsonObj.userId;
-        //jquery
-        $('#testowy').text(userID);
-        //to samo wtylko w JS
-       // document.getElementById('testowy').innerHTML = userID;
-        
-        
+
+//funkcja wychwytujaca czy jestesmy na dole
+window.onscroll = function (ev) {
+    if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+        // you're at the bottom of the page
+
+
+        //wywolanie ajaxa
+        ajax({
+            type: 'GET',
+
+            url: 'https://jsonplaceholder.typicode.com/users',
+
+            onError: function (msg) {
+                console.log(msg);
+            },
+
+            onSuccess: function (response) {
+                var jsonObjArray = JSON.parse(response);
+
+                var beginOfData = document.createElement('p');
+                var endOfData = document.createElement('p');
+
+                beginOfData.innerHTML = '<br>---------begin-------------<br>';
+                endOfData.innerHTML = '<br>---------end-------------<br>';
+
+                document.body.appendChild(beginOfData);
+
+                for (var i in jsonObjArray) {
+                    var userID = document.createElement('p');
+                    var userNAME = document.createElement('p');
+                    var userURL = document.createElement('p');
+
+                    userID.innerHTML = 'User ID: ' + jsonObjArray[i].id;
+                    userNAME.innerHTML = 'User Name: ' + jsonObjArray[i].name;
+                    userURL.innerHTML = 'User URL: ' + jsonObjArray[i].website + '<br>---';
+
+                    document.body.appendChild(userID);
+                    document.body.appendChild(userNAME);
+                    document.body.appendChild(userURL);
+ 
+                }
+
+                document.body.appendChild(endOfData);
+
+
+
+
+
+
+
+
+
+            }
+        });
+
     }
-});
+};
